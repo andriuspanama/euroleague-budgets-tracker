@@ -22,7 +22,6 @@ WEB_SOURCES = [
     "https://sportando.basketball/en/euroleague-budgets-panathinaikos-leads-with-e34m-net-payroll/",
 ]
 
-# Žurnalistai ir insideriai
 X_INSIDERS = [
     "BasketNews_com",
     "DonatasUrbonas",
@@ -43,7 +42,6 @@ BUDGET_KEYWORDS = [
     "€", "eur", "million", "mln", "m€", "milioni", "millones"
 ]
 
-# Plati paieška – visos pagrindinės komandos iš 5 šalių
 X_SEARCH_QUERY = (
     '(budget OR biudžetas OR presupuesto OR bilancio OR "net payroll" OR "total budget" OR bütçe OR maaş) '
     '(Panathinaikos OR Olympiacos OR PAO OR AEK OR Aris OR PAOK OR Promitheas OR Peristeri OR '
@@ -53,8 +51,6 @@ X_SEARCH_QUERY = (
     'Fenerbahce OR Fenerbahçe OR "Anadolu Efes" OR Efes OR Besiktas OR Beşiktaş OR Galatasaray OR "Türk Telekom" OR Karşıyaka OR Bahçeşehir) '
     '(2026 OR 2027) -is:retweet'
 )
-
-# ====================== PAGALBINĖS ======================
 
 def clean_text(text: str) -> str:
     if not text:
@@ -73,8 +69,6 @@ def extract_budget_mentions(text: str) -> List[str]:
             relevant.append(clean_text(sent))
     return relevant[:5]
 
-
-# ====================== WEB ======================
 
 def scrape_web() -> List[Dict[str, Any]]:
     results = []
@@ -104,8 +98,6 @@ def scrape_web() -> List[Dict[str, Any]]:
 
     return results
 
-
-# ====================== X ======================
 
 def get_x_client():
     import tweepy
@@ -197,8 +189,6 @@ def scrape_x_insiders(max_per_user: int = 6) -> List[Dict[str, Any]]:
     return results
 
 
-# ====================== ATASKAITOS GENERAVIMAS ======================
-
 def generate_markdown_report(web_results, x_search_results, insider_results) -> str:
     now = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
     lines = []
@@ -209,7 +199,6 @@ def generate_markdown_report(web_results, x_search_results, insider_results) -> 
     lines.append("---")
     lines.append("")
 
-    # Web dalis
     lines.append("## 📰 Straipsniai")
     lines.append("")
     if not web_results:
@@ -228,7 +217,6 @@ def generate_markdown_report(web_results, x_search_results, insider_results) -> 
             lines.append("")
     lines.append("")
 
-    # X Search
     lines.append("## 🔍 X paieška (viešos diskusijos)")
     lines.append("")
     if not x_search_results:
@@ -246,7 +234,6 @@ def generate_markdown_report(web_results, x_search_results, insider_results) -> 
             lines.append("")
     lines.append("")
 
-    # Insiders
     lines.append("## 🕵️ Žurnalistai ir insideriai")
     lines.append("")
     if not insider_results:
@@ -258,4 +245,37 @@ def generate_markdown_report(web_results, x_search_results, insider_results) -> 
             lines.append(f"- Nuoroda: {item.get('url')}")
             lines.append(f"- Patiktukai: {item.get('likes', 0)}")
             if item.get("mentions"):
-                lines.append("-
+                lines.append("- **Ištraukos:**")
+                for m in item["mentions"]:
+                    lines.append(f"  - {m}")
+            lines.append("")
+
+    lines.append("---")
+    lines.append("*Ataskaita sugeneruota automatiškai per GitHub Actions.*")
+    return "\n".join(lines)
+
+
+def main():
+    print("=" * 55)
+    print(f"Budget Tracker – {datetime.utcnow().strftime('%Y-%m-%d %H:%M')} UTC")
+    print("=" * 55)
+
+    web_results = scrape_web()
+    x_search_results = scrape_x_search()
+    insider_results = scrape_x_insiders()
+
+    report = generate_markdown_report(web_results, x_search_results, insider_results)
+
+    os.makedirs("reports", exist_ok=True)
+    date_str = datetime.utcnow().strftime("%Y-%m-%d")
+    report_path = f"reports/budget-report-{date_str}.md"
+
+    with open(report_path, "w", encoding="utf-8") as f:
+        f.write(report)
+
+    print(f"\nAtaskaita išsaugota: {report_path}")
+    print("Baigta.")
+
+
+if __name__ == "__main__":
+    main()
