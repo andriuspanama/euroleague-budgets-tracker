@@ -1,6 +1,6 @@
-# Biudžetų ataskaita – 2026-10-10 17:51 UTC
+# Biudžetų ataskaita – 2026-10-10 18:31 UTC
 
-**Sugeneruota:** 2026-10-10 17:51 UTC
+**Sugeneruota:** 2026-10-10 18:31 UTC
 
 ---
 
@@ -25,7 +25,6 @@
   - Its payroll rose by 73 percent, the biggest increase in the competition
   - Bourg ranks third with a record €8.2 million budget, roughly a third of ASVEL’s
 
-- Klaida: https://www.bebasket.fr/ → 403 Client Error: Forbidden for url: https://www.bebasket.fr/
 ### EUROLEAGUE, ECCO I BUDGET: PANATHINAIKOS DA RECORD, MILANO A 40 MILIONI E VIRTUS A 25 - Basket Magazine
 - Šaltinis: https://basketmagazine.net/budget-euroleague-2026-27-panathinaikos-milano-virtus/
 - **Rastos užuominos:**
@@ -42,6 +41,6 @@ _Nerasta aktualių įrašų._
 
 ## 🕵️ Žurnalistai ir insideriai
 
-_Naujų biudžetų užuominų iš insiderių nerasta._
+_Naujų biudžetų / sutarčių užuominų nerasta._
 ---
 *Ataskaita sugeneruota automatiškai per GitHub Actions.*
