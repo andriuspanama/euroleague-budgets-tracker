@@ -1,5 +1,8 @@
 name: Daily Budget Search
 
+permissions:
+  contents: write
+
 on:
   # Automatinis paleidimas kasdien 6:00 UTC (8:00 / 9:00 Lietuvos laiku)
   schedule:
