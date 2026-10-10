@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-EuroLeague & National Leagues Budgets Tracker
+EuroLeague + EuroCup + BCL + National Leagues Budgets Tracker
 Veikia per GitHub Actions. Rezultatus rašo į reports/ kaip Markdown.
 """
 
@@ -18,37 +18,56 @@ load_dotenv()
 # ====================== KONFIGŪRACIJA ======================
 
 WEB_SOURCES = [
+    # EuroLeague
     "https://basketnews.com/news-256534-euroleague-teams-budgets-2026-27-payrolls.html",
     "https://sportando.basketball/en/euroleague-budgets-panathinaikos-leads-with-e34m-net-payroll/",
+    # Prancūzija / LNB
+    "https://www.eurohoops.net/en/proa/2017378/paris-leads-french-league-budgets-ahead-of-asvel/",
+    "https://www.bebasket.fr/",
+    # Italija
+    "https://basketmagazine.net/budget-euroleague-2026-27-panathinaikos-milano-virtus/",
 ]
 
 X_INSIDERS = [
+    # Pagrindiniai
     "BasketNews_com",
     "DonatasUrbonas",
     "Eurohoopsnet",
-    "GiannisAskounis",
-    "Sportando",
     "Carchia",
-    "backdoor_pod",
-    "EBasketbolu",
-    "fanzonebasket",
+    "Sportando",
+    "ArisBarkas",
+    # Prancūzija
     "Headliners_fr",
+    "BeBasket_fr",
+    "BasketEurope",
+    # Turkija
+    "EBasketbolu",
+    # Graikija
+    "GiannisAskounis",
+    # Kiti
+    "backdoor_pod",
+    "fanzonebasket",
+    "Nikola_Milorad",
 ]
 
 BUDGET_KEYWORDS = [
-    "budget", "biudžetas", "presupuesto", "bilancio", "etat",
-    "payroll", "salaries", "monte ingaggi", "maaş", "bütçe",
-    "net payroll", "gross payroll", "total budget",
-    "€", "eur", "million", "mln", "m€", "milioni", "millones"
+    "budget", "biudžetas", "presupuesto", "bilancio", "etat", "masse salariale",
+    "payroll", "salaries", "monte ingaggi", "maaş", "bütçe", "stipendi",
+    "net payroll", "gross payroll", "total budget", "budget total",
+    "€", "eur", "million", "mln", "m€", "milioni", "millones", "milyon"
 ]
 
+# Plati paieška – EuroLeague + EuroCup + BCL + FIBA + nacionalinės lygos
 X_SEARCH_QUERY = (
-    '(budget OR biudžetas OR presupuesto OR bilancio OR "net payroll" OR "total budget" OR bütçe OR maaş) '
+    '(budget OR biudžetas OR presupuesto OR bilancio OR "net payroll" OR "total budget" OR bütçe OR maaş OR "masse salariale" OR "monte ingaggi") '
     '(Panathinaikos OR Olympiacos OR PAO OR AEK OR Aris OR PAOK OR Promitheas OR Peristeri OR '
-    '"Real Madrid" OR Barcelona OR Barça OR Valencia OR Baskonia OR Unicaja OR Joventut OR Murcia OR Zaragoza OR Manresa OR Tenerife OR Girona OR '
-    'Bayern OR "Alba Berlin" OR Alba OR Ulm OR Bonn OR Oldenburg OR Chemnitz OR '
-    'Milano OR "Olimpia Milano" OR Virtus OR "Virtus Bologna" OR Tortona OR Venezia OR Trento OR Varese OR '
-    'Fenerbahce OR Fenerbahçe OR "Anadolu Efes" OR Efes OR Besiktas OR Beşiktaş OR Galatasaray OR "Türk Telekom" OR Karşıyaka OR Bahçeşehir) '
+    '"Real Madrid" OR Barcelona OR Barça OR Valencia OR Baskonia OR Unicaja OR Joventut OR Murcia OR Tenerife OR '
+    'Bayern OR "Alba Berlin" OR Alba OR Ulm OR Bonn OR '
+    'Milano OR "Olimpia Milano" OR Virtus OR "Virtus Bologna" OR Tortona OR Venezia OR Trento OR '
+    'Fenerbahce OR Fenerbahçe OR "Anadolu Efes" OR Efes OR Besiktas OR Beşiktaş OR Galatasaray OR '
+    'Paris OR ASVEL OR Monaco OR Bourg OR Strasbourg OR "JL Bourg" OR '
+    'Zalgiris OR Partizan OR "Crvena Zvezda" OR Zvezda OR Dubai OR Hapoel OR Maccabi OR '
+    'EuroLeague OR EuroCup OR BCL OR "Champions League" OR "FIBA Europe Cup") '
     '(2026 OR 2027) -is:retweet'
 )
 
@@ -108,7 +127,7 @@ def get_x_client():
     return tweepy.Client(bearer_token=token, wait_on_rate_limit=True)
 
 
-def scrape_x_search(max_results: int = 40) -> List[Dict[str, Any]]:
+def scrape_x_search(max_results: int = 50) -> List[Dict[str, Any]]:
     client = get_x_client()
     if not client:
         return []
@@ -148,7 +167,7 @@ def scrape_x_search(max_results: int = 40) -> List[Dict[str, Any]]:
     return results
 
 
-def scrape_x_insiders(max_per_user: int = 6) -> List[Dict[str, Any]]:
+def scrape_x_insiders(max_per_user: int = 8) -> List[Dict[str, Any]]:
     client = get_x_client()
     if not client:
         return []
@@ -171,7 +190,7 @@ def scrape_x_insiders(max_per_user: int = 6) -> List[Dict[str, Any]]:
 
             for tweet in tweets.data:
                 text = tweet.text
-                if not any(kw in text.lower() for kw in ["budget", "payroll", "€", "million", "mln", "biudžet", "presupuesto", "bilancio", "bütçe", "maaş"]):
+                if not any(kw in text.lower() for kw in ["budget", "payroll", "€", "million", "mln", "biudžet", "presupuesto", "bilancio", "bütçe", "maaş", "masse salariale", "monte ingaggi"]):
                     continue
                 mentions = extract_budget_mentions(text)
                 results.append({
