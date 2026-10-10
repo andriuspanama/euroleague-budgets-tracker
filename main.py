@@ -18,48 +18,47 @@ load_dotenv()
 # ====================== KONFIGŪRACIJA ======================
 
 WEB_SOURCES = [
-    # EuroLeague
     "https://basketnews.com/news-256534-euroleague-teams-budgets-2026-27-payrolls.html",
     "https://sportando.basketball/en/euroleague-budgets-panathinaikos-leads-with-e34m-net-payroll/",
-    # Prancūzija / LNB
     "https://www.eurohoops.net/en/proa/2017378/paris-leads-french-league-budgets-ahead-of-asvel/",
-    "https://www.bebasket.fr/",
-    # Italija
     "https://basketmagazine.net/budget-euroleague-2026-27-panathinaikos-milano-virtus/",
 ]
 
+# Platesnis X account'ų sąrašas (biudžetai, sutartys, atlyginimai, transferai)
 X_INSIDERS = [
-    # Pagrindiniai
+    # Pagrindiniai biudžetų šaltiniai
     "BasketNews_com",
     "DonatasUrbonas",
     "Eurohoopsnet",
+    "ArisBarkas",
     "Carchia",
     "Sportando",
-    "ArisBarkas",
-    # Prancūzija
     "Headliners_fr",
+    # Transferai + insideriai
+    "EuroBallin",
+    "BSphere_",
+    "totalbasketeu",
+    "EurohoopsTR",
+    "Nikola_Milorad",
+    "GiannisAskounis",
+    # Regioniniai
     "BeBasket_fr",
     "BasketEurope",
-    # Turkija
     "EBasketbolu",
-    # Graikija
-    "GiannisAskounis",
-    # Kiti
-    "backdoor_pod",
     "fanzonebasket",
-    "Nikola_Milorad",
+    "backdoor_pod",
 ]
 
 BUDGET_KEYWORDS = [
     "budget", "biudžetas", "presupuesto", "bilancio", "etat", "masse salariale",
     "payroll", "salaries", "monte ingaggi", "maaş", "bütçe", "stipendi",
     "net payroll", "gross payroll", "total budget", "budget total",
-    "€", "eur", "million", "mln", "m€", "milioni", "millones", "milyon"
+    "€", "eur", "million", "mln", "m€", "milioni", "millones", "milyon",
+    "contract", "sutartis", "deal", "agreement"
 ]
 
-# Plati paieška – EuroLeague + EuroCup + BCL + FIBA + nacionalinės lygos
 X_SEARCH_QUERY = (
-    '(budget OR biudžetas OR presupuesto OR bilancio OR "net payroll" OR "total budget" OR bütçe OR maaş OR "masse salariale" OR "monte ingaggi") '
+    '(budget OR biudžetas OR presupuesto OR bilancio OR "net payroll" OR "total budget" OR bütçe OR maaş OR "masse salariale" OR "monte ingaggi" OR salary OR salaries OR contract) '
     '(Panathinaikos OR Olympiacos OR PAO OR AEK OR Aris OR PAOK OR Promitheas OR Peristeri OR '
     '"Real Madrid" OR Barcelona OR Barça OR Valencia OR Baskonia OR Unicaja OR Joventut OR Murcia OR Tenerife OR '
     'Bayern OR "Alba Berlin" OR Alba OR Ulm OR Bonn OR '
@@ -190,7 +189,7 @@ def scrape_x_insiders(max_per_user: int = 8) -> List[Dict[str, Any]]:
 
             for tweet in tweets.data:
                 text = tweet.text
-                if not any(kw in text.lower() for kw in ["budget", "payroll", "€", "million", "mln", "biudžet", "presupuesto", "bilancio", "bütçe", "maaş", "masse salariale", "monte ingaggi"]):
+                if not any(kw in text.lower() for kw in ["budget", "payroll", "€", "million", "mln", "biudžet", "presupuesto", "bilancio", "bütçe", "maaş", "masse salariale", "monte ingaggi", "salary", "contract", "deal"]):
                     continue
                 mentions = extract_budget_mentions(text)
                 results.append({
@@ -256,7 +255,7 @@ def generate_markdown_report(web_results, x_search_results, insider_results) -> 
     lines.append("## 🕵️ Žurnalistai ir insideriai")
     lines.append("")
     if not insider_results:
-        lines.append("_Naujų biudžetų užuominų iš insiderių nerasta._")
+        lines.append("_Naujų biudžetų / sutarčių užuominų nerasta._")
     else:
         for item in insider_results:
             lines.append(f"### @{item.get('username')} ({item.get('created_at')})")
